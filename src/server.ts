@@ -1,14 +1,21 @@
-import express from 'express';
 import { Logger } from './util/logger';
+import { App } from './app';
+import { ExecutorController } from './controller/executor-controller';
+import { BaseController } from './controller/base-controller';
+import { ActuatorController } from './controller/actuator-controller';
 
-const app = express();
-const port = process.env.PORT || 7070;
+const port: number = parseInt(process.env.PORT || '7070');
 
-app.get('/', (req, res) => res.send('its working'));
+// all application controllers should register here
+const controllers: BaseController[] = [
+  new ActuatorController(),
+  new ExecutorController(),
+];
 
-app.listen(port, () => {
-  Logger.info(`Server is running at localhost:${port}`);
-});
+// initialize app instance
+const app = new App(controllers, port);
+// start application
+app.start();
 
 process.on('uncaughtException', (err) => {
   Logger.error('uncaughtException : ', err.message, err.stack);
