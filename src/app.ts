@@ -1,5 +1,6 @@
 import express from 'express';
 import compression from 'compression';
+import { json } from 'body-parser';
 import { BaseController } from './controller/base-controller';
 import { Logger } from './util/logger';
 
@@ -22,7 +23,10 @@ export class App {
    * @private
    */
   private initialiseMiddlewares() {
+    // compression parser
     this.app.use(compression());
+    // body-parser
+    this.app.use(json());
     // router request logging
     this.app.use(
       (

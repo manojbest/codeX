@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/Bmax-Tech/codeX#readme",
   "dependencies": {
+    "body-parser": "^1.19.0",
     "compression": "^1.7.4",
     "dockerode": "^3.2.1",
     "express": "^4.17.1"
