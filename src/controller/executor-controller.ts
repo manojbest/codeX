@@ -24,8 +24,8 @@ export class ExecutorController extends BaseController {
    * @param req - the request payload
    * @param res - the response payload
    */
-  private executeHandler = (req: express.Request, res: express.Response) => {
+  private executeHandler = async (req: express.Request, res: express.Response) => {
     // execute request code block
-    res.send(this.executorService.execute(req.body));
+    res.send(await this.executorService.execute(req.body));
   };
 }

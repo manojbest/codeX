@@ -7,5 +7,5 @@ export interface ExecutorService {
    *
    * @param request - the request payload
    */
-  execute(request: ExecuteRequest): ExecuteResponse;
+  execute(request: ExecuteRequest): Promise<ExecuteResponse>;
 }

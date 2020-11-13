@@ -12,7 +12,7 @@ export class ExecutorServiceImpl implements ExecutorService {
     this.executorFactory = new ExecutorFactory();
   }
 
-  execute(request: ExecuteRequest): ExecuteResponse {
+  async execute(request: ExecuteRequest): Promise<ExecuteResponse> {
     // get proper executor for given type
     const executor = this.executorFactory.getExecutor(request.type);
     // check executor
@@ -23,6 +23,6 @@ export class ExecutorServiceImpl implements ExecutorService {
     }
     // TODO - depending on the question, the input and output values should be passed into the executor
     // do the program execution
-    return executor.execute(request.code, [], []);
+    return await executor.execute(request.code, [], []);
   }
 }

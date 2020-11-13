@@ -8,5 +8,5 @@ export interface Executor {
    * @param input - the evaluating input criteria
    * @param output - the evaluating output criteria
    */
-  execute(code: string, input: string[], output: string[]): ExecuteResponse;
+  execute(code: string, input: string[], output: string[]): Promise<ExecuteResponse>;
 }
