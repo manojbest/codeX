@@ -28,16 +28,10 @@ export class App {
     // body-parser
     this.app.use(json());
     // router request logging
-    this.app.use(
-      (
-        req: express.Request,
-        res: express.Response,
-        next: express.NextFunction
-      ) => {
-        Logger.info(`router : ${req.method.toUpperCase()} >> '${req.url}'`);
-        next();
-      }
-    );
+    this.app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
+      Logger.info(`router : ${req.method.toUpperCase()} >> '${req.url}'`);
+      next();
+    });
   }
 
   /**

@@ -1,10 +1,12 @@
 import { Executor } from './executor';
 import { ExecuteResponse } from '../dto/response/execute-response';
 import { Status } from '../util/status';
-import { Docker } from './docker';
+import { docker } from '../util/docker';
 import { Logger } from '../util/logger';
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { v4 } from 'uuid';
+import { DOCKER_IMAGE_TAGS } from '../constant/common-constants';
+import { Type } from '../util/type';
 
 export class JavaExecutor implements Executor {
   // TODO - implement the actual `JAVA` code block execution logic
@@ -23,8 +25,8 @@ export class JavaExecutor implements Executor {
       writeFileSync(`${basePath}/${v4()}.java`, code);
 
       // create container
-      const container = await Docker.getInstance().createContainer({
-        Image: 'openjdk:16-jdk-alpine',
+      const container = await docker.createContainer({
+        Image: DOCKER_IMAGE_TAGS[Type.JAVA],
         AttachStdin: false,
         AttachStdout: true,
         AttachStderr: true,
@@ -35,11 +37,7 @@ export class JavaExecutor implements Executor {
         HostConfig: {
           Binds: [`${basePath}:/workspace`],
         },
-        Cmd: [
-          `'/usr/bin/javac /workspace/${fileName}`,
-          `&&`,
-          `/usr/bin/java ${fileName.replace('.java', '')}`,
-        ],
+        Cmd: [`javac /workspace/${fileName} && java ${fileName.replace('.java', '')}`],
       });
 
       // listeners
