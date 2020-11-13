@@ -24,7 +24,6 @@ export class JavaExecutor implements Executor {
     return `public class ${className} { ${code} }`;
   }
 
-  // TODO - implement the actual `JAVA` code block execution logic
   async execute(code: string, input: string[], output: string[]): Promise<ExecuteResponse> {
     const stdout = new WritableStream();
     const stderr = new WritableStream();
