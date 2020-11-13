@@ -3,26 +3,22 @@ import { ExecuteResponse } from '../dto/response/execute-response';
 import { Status } from '../util/status';
 import { docker } from '../util/docker';
 import { Logger } from '../util/logger';
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { v4 } from 'uuid';
 import { DOCKER_IMAGE_TAGS } from '../constant/common-constants';
 import { Type } from '../util/type';
+import { fileManager } from '../util/file-manager';
 
 export class JavaExecutor implements Executor {
+  // base path for all java temp files
+  private static BASE_DIRECTORY = `${process.env.PROJECT_ROOT}/vault/java`;
+
   // TODO - implement the actual `JAVA` code block execution logic
   async execute(code: string, input: string[], output: string[]): Promise<ExecuteResponse> {
     try {
-      // directory path
-      const basePath = `${process.env.PROJECT_ROOT}/vault/java`;
-      // check directory
-      if (!existsSync(basePath)) {
-        mkdirSync(basePath);
-      }
-
       // generate random id
       const fileName = `${v4()}.java`;
-      // write code to temp file
-      writeFileSync(`${basePath}/${v4()}.java`, code);
+      // create temp file
+      fileManager.createFile(JavaExecutor.BASE_DIRECTORY, fileName, code, { encoding: 'utf-8' });
 
       // create container
       const container = await docker.createContainer({
@@ -35,7 +31,7 @@ export class JavaExecutor implements Executor {
           '/workspace': {},
         },
         HostConfig: {
-          Binds: [`${basePath}:/workspace`],
+          Binds: [`${JavaExecutor.BASE_DIRECTORY}:/workspace`],
         },
         Cmd: [`javac /workspace/${fileName} && java ${fileName.replace('.java', '')}`],
       });
