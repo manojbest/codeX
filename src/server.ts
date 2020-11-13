@@ -1,4 +1,4 @@
-import { ImageInfo, ImageInspectInfo } from 'dockerode';
+import {Container, ImageInfo, ImageInspectInfo} from 'dockerode';
 import { Docker } from './util/docker';
 import { Logger } from './util/logger';
 import { App } from './app';
