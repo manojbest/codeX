@@ -1,11 +1,4 @@
-import {
-  adjectives,
-  animals,
-  colors,
-  countries,
-  starWars,
-  uniqueNamesGenerator,
-} from 'unique-names-generator';
+import { adjectives, animals, colors, uniqueNamesGenerator } from 'unique-names-generator';
 
 /**
  * Name generator
@@ -17,7 +10,7 @@ class NameGenerator {
    */
   public generateName(): string {
     return uniqueNamesGenerator({
-      dictionaries: [adjectives, animals, countries, colors, starWars],
+      dictionaries: [adjectives, animals, colors],
       style: 'capital',
       separator: '',
     }).replace(/ /g, '');
