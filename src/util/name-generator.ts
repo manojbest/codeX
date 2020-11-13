@@ -20,7 +20,7 @@ class NameGenerator {
       dictionaries: [adjectives, animals, countries, colors, starWars],
       style: 'capital',
       separator: '',
-    }).replace(' ', '');
+    }).replace(/ /g, '');
   }
 }
 
