@@ -80,6 +80,31 @@ class Docker {
   public createContainer(options: ContainerCreateOptions): Promise<Container> {
     return this.docker.createContainer(options);
   }
+
+  /**
+   * Run dockerode container
+   *
+   * @param image - the image name
+   * @param cmd - the command set
+   * @param outputStream - the output stream
+   * @param createOptions - the create options (optional)
+   * @param startOptions - the start options (optional)
+   */
+  public run(
+    image: string,
+    cmd: string[],
+    outputStream: NodeJS.WritableStream | NodeJS.WritableStream[],
+    createOptions?: {},
+    startOptions?: {}
+  ): Promise<any> {
+    return this.docker.run(
+      image,
+      cmd,
+      outputStream,
+      { Tty: false, ...createOptions },
+      startOptions
+    );
+  }
 }
 
 export const docker = new Docker();
