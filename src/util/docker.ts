@@ -1,9 +1,4 @@
-import Dockerode, {
-  Container,
-  ContainerCreateOptions,
-  ImageInfo,
-  ImageInspectInfo,
-} from 'dockerode';
+import Dockerode, { Container, ContainerCreateOptions, ImageInspectInfo } from 'dockerode';
 import { DOCKER_IMAGE_TAGS } from '../constant/common-constants';
 import { Logger } from './logger';
 
@@ -27,42 +22,54 @@ class Docker {
           this.docker.pull(dockerImageTag)
         )
       )
-        .then((streams) => {
-          // check all streams
-          streams.forEach((stream, index) => {
-            // attach to stdout
-            stream.pipe(process.stdout);
-            // check current stream is the last or not
-            if (index === Object.values(DOCKER_IMAGE_TAGS).length - 1) {
-              stream.once('end', async () => {
-                const table: any = [];
-                const imageInfoPromises: Promise<ImageInspectInfo>[] = [];
-                const imageInfoList = await this.docker.listImages();
-                // extract image info list
-                imageInfoList.forEach((imageInfo: ImageInfo) => {
-                  Object.values(DOCKER_IMAGE_TAGS).forEach((imageTag) => {
-                    // needs only to show the images for this application
-                    if (imageInfo.RepoTags.includes(imageTag)) {
-                      imageInfoPromises.push(this.docker.getImage(imageInfo.Id).inspect());
-                    }
+        .then((streams) =>
+          // do the process attachment and inspection
+          Promise.all(
+            streams.map(
+              (stream) =>
+                new Promise((resolveStream) => {
+                  // attach to stdout
+                  stream.pipe(process.stdout);
+                  stream.on('end', () => {
+                    // done with stream processing
+                    resolveStream();
                   });
-                });
-                // resolve image info promises
-                Promise.all(imageInfoPromises).then((imageInspectInfo: ImageInspectInfo[]) => {
-                  imageInspectInfo.forEach((imageInspectInfoItem: ImageInspectInfo) => {
-                    table.push({
-                      id: imageInspectInfoItem.Id,
-                      tags: imageInspectInfoItem.RepoTags,
-                      size: imageInspectInfoItem.Size,
-                    });
-                  });
-                  console.log('Docker images in this application');
-                  console.table(table);
-                  resolve(true);
+                })
+            )
+          )
+        )
+        .then(async () => {
+          const table: any = [];
+          const imageInfoPromises: Promise<ImageInspectInfo>[] = [];
+          const imageInfoList = await this.docker.listImages();
+          // check docker images availability
+          const available = Object.values(DOCKER_IMAGE_TAGS).every((imageTag) => {
+            // find the docker image info
+            const image = imageInfoList.find((image) => image.RepoTags?.includes(imageTag));
+            if (image) {
+              // if valid docker image info found, process with image inspection
+              imageInfoPromises.push(this.docker.getImage(image.Id).inspect());
+            }
+            return !!image;
+          });
+          // proceed further, if all required docker images are present after bootstrapping
+          if (available) {
+            // resolve image info promises
+            Promise.all(imageInfoPromises).then((imageInspectInfo: ImageInspectInfo[]) => {
+              imageInspectInfo.forEach((imageInspectInfoItem: ImageInspectInfo) => {
+                table.push({
+                  id: imageInspectInfoItem.Id,
+                  tags: imageInspectInfoItem.RepoTags,
+                  size: imageInspectInfoItem.Size,
                 });
               });
-            }
-          });
+              console.log('Docker images in this application');
+              console.table(table);
+              resolve(true);
+            });
+          } else {
+            reject('All required docker images are not ready');
+          }
         })
         .catch((error) => {
           // error occurred while bootstrapping
