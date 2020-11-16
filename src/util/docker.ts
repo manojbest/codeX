@@ -68,7 +68,8 @@ class Docker {
               resolve(true);
             });
           } else {
-            reject('All required docker images are not ready');
+            Logger.error('bootstrap : All required docker images are not ready');
+            reject();
           }
         })
         .catch((error) => {
