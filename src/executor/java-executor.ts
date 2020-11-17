@@ -27,7 +27,7 @@ export class JavaExecutor implements Executor {
   async execute(code: string, input: string[], output: string[]): Promise<ExecuteResponse> {
     const stdout = new WritableStream();
     const stderr = new WritableStream();
-    return new Promise<ExecuteResponse>(async (resolve, reject) => {
+    return new Promise<ExecuteResponse>(async (resolve) => {
       try {
         // generate random classname
         const className = nameGenerator.generateName();
