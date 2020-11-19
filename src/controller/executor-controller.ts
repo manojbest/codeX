@@ -6,6 +6,8 @@ import { LanguageMetadataFactory } from '../service/language-metadata-factory';
 import { ExecutionRequest } from '../dto/request/execution-request';
 import { Queue } from '../util/queue';
 import { Logger } from '../util/logger';
+import { socket } from '../util/socket';
+import { SubmitRequest } from '../dto/request/submit-request';
 
 export class ExecutorController extends BaseController {
   // the base path of the controller
@@ -60,7 +62,7 @@ export class ExecutorController extends BaseController {
    * @param res - the response payload
    */
   private submitHandler = (req: express.Request, res: express.Response) => {
-    const executionRequest: ExecutionRequest = req.body as ExecutionRequest;
+    const executionRequest: SubmitRequest = req.body as SubmitRequest;
 
     // push request to queue
     const task = this.questionsQueue.push(executionRequest);
@@ -70,12 +72,15 @@ export class ExecutorController extends BaseController {
     task
       .on('progress', (progress) => {
         Logger.info('task in-progress : ', progress);
+        socket.emit(executionRequest.socketId, { loading: true, error: null });
       })
       .on('finish', (data) => {
         Logger.info('task finish : ', data);
+        socket.emit(executionRequest.socketId, { loading: false, error: null, result: data });
       })
       .on('failed', (error) => {
         Logger.error('task failed : ', error);
+        socket.emit(executionRequest.socketId, { loading: false, error });
       });
 
     // send status only, void response
