@@ -3,7 +3,7 @@ import { ExecuteResponse } from '../dto/response/execute-response';
 import { Status } from '../util/status';
 import { docker } from '../util/docker';
 import { Logger } from '../util/logger';
-import { DOCKER_IMAGE_TAGS } from '../constant/common-constants';
+import { DOCKER_IMAGE_TEST_TAGS } from '../constant/common-constants';
 import { Type } from '../util/type';
 import { fileManager } from '../util/file-manager';
 import { WritableStream } from 'memory-streams';
@@ -41,16 +41,18 @@ export class JavaExecutor implements Executor {
           { encoding: 'utf-8' }
         );
         // execute container
+        // pmd -d Sample.java -R rulesets/java/quickstart.xml -f text
+        // ['sh', '-c', `java -version && cd /workspace && javac ${fileName} && java ${className}`],
         const [output, container] = await docker.run(
-          DOCKER_IMAGE_TAGS[Type.JAVA],
-          ['sh', '-c', `java -version && cd /workspace && javac ${fileName} && java ${className}`],
+            DOCKER_IMAGE_TEST_TAGS[Type.JAVA],
+          ['sh', '-c', `java -version && pwd && pmd -d ${fileName} -R rulesets/java/quickstart.xml -f text`],
           [stdout, stderr],
           {
             Volumes: {
-              '/workspace': {},
+              '/': {},
             },
             HostConfig: {
-              Binds: [`${JavaExecutor.BASE_DIRECTORY}:/workspace`],
+              Binds: [`${JavaExecutor.BASE_DIRECTORY}:/`],
             },
           }
         );
@@ -60,7 +62,7 @@ export class JavaExecutor implements Executor {
         Logger.info('stderr :', stderr.toString());
 
         // remove container once program execution finishes
-        await container.remove();
+       // await container.remove();
 
         // resolve request as SUCCESS
         resolve({ status: Status.SUCCESS, log: stdout.toString() });

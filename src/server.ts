@@ -1,4 +1,4 @@
-import { docker } from './util/docker';
+import { dockerRunner } from './util/docker-files/docker-runner';
 import { Logger } from './util/logger';
 import { App } from './app';
 import { ExecutorController } from './controller/executor-controller';
@@ -14,7 +14,7 @@ const controllers: BaseController[] = [new ActuatorController(), new ExecutorCon
 const app = new App(controllers, port);
 
 // bootstrap docker
-docker.bootstrap().then(() => {
+dockerRunner.testBootstrap().then(() => {
   // success
   app.start();
 });
