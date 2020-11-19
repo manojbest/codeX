@@ -6,7 +6,6 @@ import { LanguageMetadataFactory } from '../service/execution/language-metadata-
 import { ExecutionRequest } from '../dto/request/execution-request';
 import { Queue } from '../util/queue';
 import { Logger } from '../util/logger';
-import { ProgramAnalysisCommand } from '../service/analysis/executor/program-analysis-command';
 import { AnalysisMetadataFactory } from '../service/analysis/analysis-metadata-factory';
 
 export class ExecutorController extends BaseController {
@@ -33,7 +32,7 @@ export class ExecutorController extends BaseController {
 
   initialiseRoutes(): void {
     this.router.post(this.BASE_PATH, this.executeHandler);
-    this.router.post(`${this.BASE_PATH}/submit`, this.submitHandlerExample);
+    this.router.post(`${this.BASE_PATH}/submit`, this.submitHandler);
   }
 
   /**
@@ -84,18 +83,5 @@ export class ExecutorController extends BaseController {
 
     // send status only, void response
     res.status(200).send();
-  };
-
-  private submitHandlerExample = async (req: express.Request, res: express.Response) => {
-    const executionRequest: ExecutionRequest = req.body as ExecutionRequest;
-
-    this.programExecutor.setCommand(
-      new ProgramAnalysisCommand(
-        this.metadataAnalysisFactory.getAnalysisMetaDataInstance(executionRequest.type)
-      )
-    );
-    const result = await this.programExecutor.run(executionRequest.code);
-    // execute request code block
-    res.send(result);
   };
 }

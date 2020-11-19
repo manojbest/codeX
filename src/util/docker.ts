@@ -26,15 +26,20 @@ class Docker {
           const imageInfoPromises: Promise<ImageInspectInfo>[] = [];
           const imageInfoList = await this.docker.listImages();
           // check docker images availability
-          const available = Object.values(DOCKER_IMAGE_TAGS).every((imageTag) => {
-            // find the docker image info
-            const image = imageInfoList.find((image) => image.RepoTags?.includes(imageTag));
-            if (image) {
-              // if valid docker image info found, process with image inspection
-              imageInfoPromises.push(this.docker.getImage(image.Id).inspect());
+          const customImageTags = Object.values(CUSTOM_DOCKER_IMAGES).map(
+            (item) => `${item.tag}:latest`
+          );
+          const available = [...Object.values(DOCKER_IMAGE_TAGS), ...customImageTags].every(
+            (imageTag) => {
+              // find the docker image info
+              const image = imageInfoList.find((image) => image.RepoTags?.includes(imageTag));
+              if (image) {
+                // if valid docker image info found, process with image inspection
+                imageInfoPromises.push(this.docker.getImage(image.Id).inspect());
+              }
+              return !!image;
             }
-            return !!image;
-          });
+          );
           // proceed further, if all required docker images are present after bootstrapping
           if (available) {
             // resolve image info promises
