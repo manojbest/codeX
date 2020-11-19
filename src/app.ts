@@ -5,6 +5,8 @@ import { json } from 'body-parser';
 import { BaseController } from './controller/base-controller';
 import { Logger } from './util/logger';
 import { textSync } from 'figlet';
+import { Server } from 'http';
+import { socket } from './util/socket';
 
 export class App {
   private app: express.Application;
@@ -54,10 +56,13 @@ export class App {
   }
 
   public start() {
-    this.app.listen(this.port, () => {
+    // start express server
+    const server: Server = this.app.listen(this.port, () => {
       // fancy console output. :)
       console.log(textSync('codeX', { font: 'Speed' }));
       Logger.info(`Server is running at localhost:${this.port}`);
     });
+    // attach express server to socket context
+    socket.attach(server);
   }
 }

@@ -3,9 +3,10 @@ import { CUSTOM_DOCKER_IMAGES, DOCKER_IMAGE_TAGS } from '../constant/common-cons
 import { Logger } from './logger';
 
 class Docker {
+  private static BASE_DOCKERFILE_DIRECTORY = `${process.env.PROJECT_ROOT}/src/docker-config`;
+
   // the dockerode instance
   private docker: Dockerode;
-  private static BASE_DOCKERFILE_DIRECTORY = `${process.env.PROJECT_ROOT}/src/docker-config`;
 
   constructor() {
     // create dockerode instance
@@ -25,10 +26,11 @@ class Docker {
           const table: any = [];
           const imageInfoPromises: Promise<ImageInspectInfo>[] = [];
           const imageInfoList = await this.docker.listImages();
-          // check docker images availability
+          // build custom docker image tag list
           const customImageTags = Object.values(CUSTOM_DOCKER_IMAGES).map(
             (item) => `${item.tag}:latest`
           );
+          // check docker images availability
           const available = [...Object.values(DOCKER_IMAGE_TAGS), ...customImageTags].every(
             (imageTag) => {
               // find the docker image info
