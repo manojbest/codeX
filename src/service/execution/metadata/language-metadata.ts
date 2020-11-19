@@ -1,4 +1,4 @@
-import { Type } from '../../util/type';
+import { Type } from '../../../util/type';
 
 export interface LanguageMetadata {
   getExecuteCommands(): string[];

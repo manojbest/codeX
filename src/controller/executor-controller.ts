@@ -1,11 +1,13 @@
 import express from 'express';
 import { BaseController } from './base-controller';
 import { ProgramExecutor } from '../service/program-executor';
-import { ProgramExecutorCommand } from '../service/executor/program-executor-command';
-import { LanguageMetadataFactory } from '../service/language-metadata-factory';
+import { ProgramExecutorCommand } from '../service/execution/executor/program-executor-command';
+import { LanguageMetadataFactory } from '../service/execution/language-metadata-factory';
 import { ExecutionRequest } from '../dto/request/execution-request';
 import { Queue } from '../util/queue';
 import { Logger } from '../util/logger';
+import { ProgramAnalysisCommand } from '../service/analysis/executor/program-analysis-command';
+import { AnalysisMetadataFactory } from '../service/analysis/analysis-metadata-factory';
 
 export class ExecutorController extends BaseController {
   // the base path of the controller
@@ -13,12 +15,14 @@ export class ExecutorController extends BaseController {
 
   private programExecutor: ProgramExecutor;
   private metadataFactory: LanguageMetadataFactory;
+  private metadataAnalysisFactory: AnalysisMetadataFactory;
   private questionsQueue: Queue;
 
   constructor() {
     super();
     this.programExecutor = new ProgramExecutor();
     this.metadataFactory = new LanguageMetadataFactory();
+    this.metadataAnalysisFactory = new AnalysisMetadataFactory();
     this.questionsQueue = new Queue((task) => {
       // TODO - implement code analysis execution call
       console.log('Async task : ', task);
@@ -29,7 +33,7 @@ export class ExecutorController extends BaseController {
 
   initialiseRoutes(): void {
     this.router.post(this.BASE_PATH, this.executeHandler);
-    this.router.post(`${this.BASE_PATH}/submit`, this.submitHandler);
+    this.router.post(`${this.BASE_PATH}/submit`, this.submitHandlerExample);
   }
 
   /**
@@ -80,5 +84,18 @@ export class ExecutorController extends BaseController {
 
     // send status only, void response
     res.status(200).send();
+  };
+
+  private submitHandlerExample = async (req: express.Request, res: express.Response) => {
+    const executionRequest: ExecutionRequest = req.body as ExecutionRequest;
+
+    this.programExecutor.setCommand(
+      new ProgramAnalysisCommand(
+        this.metadataAnalysisFactory.getAnalysisMetaDataInstance(executionRequest.type)
+      )
+    );
+    const result = await this.programExecutor.run(executionRequest.code);
+    // execute request code block
+    res.send(result);
   };
 }
