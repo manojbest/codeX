@@ -1,5 +1,5 @@
 import { LanguageMetadata } from './metadata/language-metadata';
-import { Type } from '../util/type';
+import { Type } from '../../util/type';
 import { JavaMetadata } from './metadata/java-metadata';
 import { NodeMetadata } from './metadata/node-metadata';
 import { PythonMetadata } from './metadata/python-metadata';

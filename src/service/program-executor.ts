@@ -1,5 +1,6 @@
 import { ProgramCommand } from './program-command';
 import { ExecutionResponse } from '../dto/response/execution-response';
+import {AnalysisResponse} from '../dto/response/analysis-response'
 
 export class ProgramExecutor {
   private programCommand: ProgramCommand = {} as ProgramCommand
@@ -8,7 +9,7 @@ export class ProgramExecutor {
     this.programCommand = programCommand;
   }
 
-  public run(code: string): Promise<ExecutionResponse> {
+  public run(code: string): Promise<ExecutionResponse | AnalysisResponse> {
     return this.programCommand.execute(code);
   }
 }

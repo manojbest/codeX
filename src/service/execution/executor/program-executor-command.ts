@@ -1,14 +1,14 @@
-import { ProgramCommand } from '../program-command';
+import { ProgramCommand } from '../../program-command';
 import { LanguageMetadata } from '../metadata/language-metadata';
-import { nameGenerator } from '../../util/name-generator';
-import { fileManager } from '../../util/file-manager';
-import { docker } from '../../util/docker';
-import { DOCKER_IMAGE_TAGS } from '../../constant/common-constants';
-import { Logger } from '../../util/logger';
-import { Status } from '../../util/status';
+import { nameGenerator } from '../../../util/name-generator';
+import { fileManager } from '../../../util/file-manager';
+import { docker } from '../../../util/docker';
+import { DOCKER_IMAGE_TAGS } from '../../../constant/common-constants';
+import { Logger } from '../../../util/logger';
+import { Status } from '../../../util/status';
 import { WritableStream } from 'memory-streams';
-import { ExecutionResponse } from '../../dto/response/execution-response';
-import { Type } from '../../util/type';
+import { ExecutionResponse } from '../../../dto/response/execution-response';
+import { Type } from '../../../util/type';
 
 export class ProgramExecutorCommand implements ProgramCommand {
 
@@ -16,8 +16,8 @@ export class ProgramExecutorCommand implements ProgramCommand {
 
   private programMetaData: LanguageMetadata
 
-  constructor(program: LanguageMetadata) {
-    this.programMetaData = program
+  constructor(programMetaData: LanguageMetadata) {
+    this.programMetaData = programMetaData
   }
 
   public async execute(code: string): Promise<ExecutionResponse> {

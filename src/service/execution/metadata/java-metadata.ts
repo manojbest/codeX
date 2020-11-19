@@ -1,5 +1,5 @@
 import { LanguageMetadata } from './language-metadata';
-import { Type } from '../../util/type';
+import { Type } from '../../../util/type';
 
 export class JavaMetadata implements LanguageMetadata {
   public getExecuteCommands(): string[] {

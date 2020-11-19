@@ -1,8 +1,8 @@
 import express from 'express';
 import { BaseController } from './base-controller';
 import { ProgramExecutor } from '../service/program-executor';
-import { ProgramExecutorCommand } from '../service/executor/program-executor-command';
-import { LanguageMetadataFactory } from '../service/language-metadata-factory';
+import { ProgramExecutorCommand } from '../service/execution/executor/program-executor-command';
+import { LanguageMetadataFactory } from '../service/execution/language-metadata-factory';
 import { ExecutionRequest } from '../dto/request/execution-request';
 
 export class ExecutorController extends BaseController {
