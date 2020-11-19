@@ -7,8 +7,7 @@ import { ExecutionRequest } from '../dto/request/execution-request';
 import { Queue } from '../util/queue';
 import { Logger } from '../util/logger';
 import { AnalysisMetadataFactory } from '../service/analysis/analysis-metadata-factory';
-import { socket } from '../util/socket';
-import { SubmitRequest } from '../dto/request/submit-request';
+import { ProgramAnalysisCommand } from '../service/analysis/executor/program-analysis-command';
 
 export class ExecutorController extends BaseController {
   // the base path of the controller
@@ -16,16 +15,21 @@ export class ExecutorController extends BaseController {
 
   private programExecutor: ProgramExecutor;
   private metadataFactory: LanguageMetadataFactory;
-  private metadataAnalysisFactory: AnalysisMetadataFactory;
+  private analysisMetadataFactory: AnalysisMetadataFactory;
   private questionsQueue: Queue;
 
   constructor() {
     super();
     this.programExecutor = new ProgramExecutor();
     this.metadataFactory = new LanguageMetadataFactory();
-    this.metadataAnalysisFactory = new AnalysisMetadataFactory();
+    this.analysisMetadataFactory = new AnalysisMetadataFactory();
     this.questionsQueue = new Queue((task) => {
-      // TODO - implement code analysis execution call
+      this.programExecutor.setCommand(
+        new ProgramAnalysisCommand(
+          this.analysisMetadataFactory.getAnalysisMetaDataInstance(task.payload.type)
+        )
+      );
+      this.programExecutor.run(task.payload.code);
       console.log('Async task : ', task);
       // if error occurred, pass error value, otherwise it should be `NULL`
       return { error: null, result: task };
@@ -65,7 +69,7 @@ export class ExecutorController extends BaseController {
    * @param res - the response payload
    */
   private submitHandler = (req: express.Request, res: express.Response) => {
-    const executionRequest: SubmitRequest = req.body as SubmitRequest;
+    const executionRequest: ExecutionRequest = req.body as ExecutionRequest;
 
     // push request to queue
     const task = this.questionsQueue.push(executionRequest);
@@ -75,15 +79,12 @@ export class ExecutorController extends BaseController {
     task
       .on('progress', (progress) => {
         Logger.info('task in-progress : ', progress);
-        socket.emit(executionRequest.socketId, { loading: true, error: null });
       })
       .on('finish', (data) => {
         Logger.info('task finish : ', data);
-        socket.emit(executionRequest.socketId, { loading: false, error: null, result: data });
       })
       .on('failed', (error) => {
         Logger.error('task failed : ', error);
-        socket.emit(executionRequest.socketId, { loading: false, error });
       });
 
     // send status only, void response
