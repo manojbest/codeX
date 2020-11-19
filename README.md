@@ -17,3 +17,4 @@ For further reference, please consider the following sections:
 - [Node documentation](https://nodejs.org/en/docs/)
 - [Express documentation](https://expressjs.com/en/4x/api.html)
 - [Dockerode documentation](https://github.com/apocas/dockerode)
+- [Better-Queue documentation](https://github.com/diamondio/better-queue)
