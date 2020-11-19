@@ -1,5 +1,13 @@
-import { Type } from '../util/type';
+import { CustomType, Type } from '../util/type';
 
+/**
+ * Custom docker images for static code analysis images
+ */
+export const CUSTOM_DOCKER_IMAGES = {
+  [CustomType.CUSTOM_JAVA]: { tag: 'analyzer_java', folder: 'java' },
+  [CustomType.CUSTOM_NODE]: { tag: 'analyzer_node', folder: 'node' },
+  [CustomType.CUSTOM_PYTHON]: { tag: 'analyzer_python', folder: 'python' },
+};
 /**
  * all application docker image tags
  */

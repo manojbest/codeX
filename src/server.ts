@@ -1,9 +1,9 @@
-import { docker } from './util/docker';
 import { Logger } from './util/logger';
 import { App } from './app';
 import { ExecutorController } from './controller/executor-controller';
 import { BaseController } from './controller/base-controller';
 import { ActuatorController } from './controller/actuator-controller';
+import { docker } from './util/docker';
 
 const port: number = parseInt(process.env.PORT || '7070');
 

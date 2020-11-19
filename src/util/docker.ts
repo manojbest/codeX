@@ -1,10 +1,11 @@
 import Dockerode, { Container, ContainerCreateOptions, ImageInspectInfo } from 'dockerode';
-import { DOCKER_IMAGE_TAGS } from '../constant/common-constants';
+import { CUSTOM_DOCKER_IMAGES, DOCKER_IMAGE_TAGS } from '../constant/common-constants';
 import { Logger } from './logger';
 
 class Docker {
   // the dockerode instance
   private docker: Dockerode;
+  private static BASE_DOCKERFILE_DIRECTORY = `${process.env.PROJECT_ROOT}/src/docker-config`;
 
   constructor() {
     // create dockerode instance
@@ -25,15 +26,20 @@ class Docker {
           const imageInfoPromises: Promise<ImageInspectInfo>[] = [];
           const imageInfoList = await this.docker.listImages();
           // check docker images availability
-          const available = Object.values(DOCKER_IMAGE_TAGS).every((imageTag) => {
-            // find the docker image info
-            const image = imageInfoList.find((image) => image.RepoTags?.includes(imageTag));
-            if (image) {
-              // if valid docker image info found, process with image inspection
-              imageInfoPromises.push(this.docker.getImage(image.Id).inspect());
+          const customImageTags = Object.values(CUSTOM_DOCKER_IMAGES).map(
+            (item) => `${item.tag}:latest`
+          );
+          const available = [...Object.values(DOCKER_IMAGE_TAGS), ...customImageTags].every(
+            (imageTag) => {
+              // find the docker image info
+              const image = imageInfoList.find((image) => image.RepoTags?.includes(imageTag));
+              if (image) {
+                // if valid docker image info found, process with image inspection
+                imageInfoPromises.push(this.docker.getImage(image.Id).inspect());
+              }
+              return !!image;
             }
-            return !!image;
-          });
+          );
           // proceed further, if all required docker images are present after bootstrapping
           if (available) {
             // resolve image info promises
@@ -103,10 +109,15 @@ class Docker {
    */
   private buildImages(): Promise<any> {
     // build all local docker images
-    // TODO - implement the local docker file specific build logics
     return this.resolveStream(
-      Object.values(DOCKER_IMAGE_TAGS).map((dockerImageTag: string) =>
-        this.docker.pull(dockerImageTag)
+      Object.values(CUSTOM_DOCKER_IMAGES).map((image) =>
+        this.docker.buildImage(
+          {
+            context: `${Docker.BASE_DOCKERFILE_DIRECTORY}/${image.folder}`,
+            src: ['Dockerfile'],
+          },
+          { t: image.tag }
+        )
       )
     );
   }

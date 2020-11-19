@@ -1,11 +1,11 @@
-import { LanguageMetadata } from './metadata/language-metadata';
-import { Type } from '../util/type';
+import { Type } from '../../util/type';
+import { AnalysisMetadata } from './metadata/analysis-metadata';
 import { JavaMetadata } from './metadata/java-metadata';
 import { NodeMetadata } from './metadata/node-metadata';
 import { PythonMetadata } from './metadata/python-metadata';
 
-export class LanguageMetadataFactory {
-  public getLanguageMetadataInstance(type: Type): LanguageMetadata {
+export class AnalysisMetadataFactory {
+  public getAnalysisMetaDataInstance(type: Type): AnalysisMetadata {
     switch (type) {
       case Type.JAVA:
         return new JavaMetadata();
@@ -14,7 +14,7 @@ export class LanguageMetadataFactory {
       case Type.PYTHON:
         return new PythonMetadata();
       default:
-        return {} as LanguageMetadata;
+        return {} as AnalysisMetadata;
     }
   }
 }

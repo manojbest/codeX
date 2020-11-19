@@ -1,11 +1,12 @@
 import express from 'express';
 import { BaseController } from './base-controller';
 import { ProgramExecutor } from '../service/program-executor';
-import { ProgramExecutorCommand } from '../service/executor/program-executor-command';
-import { LanguageMetadataFactory } from '../service/language-metadata-factory';
+import { ProgramExecutorCommand } from '../service/execution/executor/program-executor-command';
+import { LanguageMetadataFactory } from '../service/execution/language-metadata-factory';
 import { ExecutionRequest } from '../dto/request/execution-request';
 import { Queue } from '../util/queue';
 import { Logger } from '../util/logger';
+import { AnalysisMetadataFactory } from '../service/analysis/analysis-metadata-factory';
 
 export class ExecutorController extends BaseController {
   // the base path of the controller
@@ -13,12 +14,14 @@ export class ExecutorController extends BaseController {
 
   private programExecutor: ProgramExecutor;
   private metadataFactory: LanguageMetadataFactory;
+  private metadataAnalysisFactory: AnalysisMetadataFactory;
   private questionsQueue: Queue;
 
   constructor() {
     super();
     this.programExecutor = new ProgramExecutor();
     this.metadataFactory = new LanguageMetadataFactory();
+    this.metadataAnalysisFactory = new AnalysisMetadataFactory();
     this.questionsQueue = new Queue((task) => {
       // TODO - implement code analysis execution call
       console.log('Async task : ', task);
