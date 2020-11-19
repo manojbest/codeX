@@ -16,28 +16,10 @@ class Docker {
    */
   public bootstrap(): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
-      // pull all docker images
-      Promise.all(
-        Object.values(DOCKER_IMAGE_TAGS).map((dockerImageTag: string) =>
-          this.docker.pull(dockerImageTag)
-        )
-      )
-        .then((streams) =>
-          // do the process attachment and inspection
-          Promise.all(
-            streams.map(
-              (stream) =>
-                new Promise((resolveStream) => {
-                  // attach to stdout
-                  stream.pipe(process.stdout);
-                  stream.on('end', () => {
-                    // done with stream processing
-                    resolveStream();
-                  });
-                })
-            )
-          )
-        )
+      // first build docker images
+      Promise.all([this.buildImages()])
+        // pull all docker images
+        .then(() => Promise.all([this.pullImages()]))
         .then(async () => {
           const table: any = [];
           const imageInfoPromises: Promise<ImageInspectInfo>[] = [];
@@ -112,6 +94,65 @@ class Docker {
       { Tty: false, ...createOptions },
       startOptions
     );
+  }
+
+  /**
+   * Build all docker images
+   *
+   * @private
+   */
+  private buildImages(): Promise<any> {
+    // build all local docker images
+    // TODO - implement the local docker file specific build logics
+    return this.resolveStream(
+      Object.values(DOCKER_IMAGE_TAGS).map((dockerImageTag: string) =>
+        this.docker.pull(dockerImageTag)
+      )
+    );
+  }
+
+  /**
+   * Pull all required docker images
+   *
+   * @private
+   */
+  private pullImages(): Promise<any> {
+    // pull all docker images
+    return this.resolveStream(
+      Object.values(DOCKER_IMAGE_TAGS).map((dockerImageTag: string) =>
+        this.docker.pull(dockerImageTag)
+      )
+    );
+  }
+
+  /**
+   * Resolve parallel streams
+   *
+   * @param streamsList - the lis of stream processes
+   * @private
+   */
+  private resolveStream(streamsList: Promise<any>[]): Promise<boolean> {
+    return new Promise<any>((resolve, reject) => {
+      Promise.all(streamsList)
+        .then((streams) =>
+          // do the process attachment and inspection
+          Promise.all(
+            streams.map(
+              (stream) =>
+                new Promise((resolveStream) => {
+                  // attach to stdout
+                  stream.pipe(process.stdout);
+                  stream.on('end', () => {
+                    // done with stream processing
+                    resolveStream();
+                  });
+                })
+            )
+          )
+        )
+        .then(() => resolve(true))
+        .catch((reason) => reject(reason));
+    });
   }
 }
 
