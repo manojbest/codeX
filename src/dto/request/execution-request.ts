@@ -3,7 +3,7 @@ import { Type } from '../../util/type';
 /**
  * Execute request payload
  */
-export interface ExecuteRequest {
+export interface ExecutionRequest {
   userId: string;
   questionId: string;
   type: Type;
