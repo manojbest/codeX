@@ -1,9 +1,9 @@
-import { dockerRunner } from './util/docker-files/docker-runner';
 import { Logger } from './util/logger';
 import { App } from './app';
 import { ExecutorController } from './controller/executor-controller';
 import { BaseController } from './controller/base-controller';
 import { ActuatorController } from './controller/actuator-controller';
+import { docker } from './util/docker';
 
 const port: number = parseInt(process.env.PORT || '7070');
 
@@ -14,7 +14,7 @@ const controllers: BaseController[] = [new ActuatorController(), new ExecutorCon
 const app = new App(controllers, port);
 
 // bootstrap docker
-dockerRunner.testBootstrap().then(() => {
+docker.bootstrap().then(() => {
   // success
   app.start();
 });
