@@ -1,5 +1,6 @@
 import express from 'express';
 import compression from 'compression';
+import cors from 'cors';
 import { json } from 'body-parser';
 import { BaseController } from './controller/base-controller';
 import { Logger } from './util/logger';
@@ -24,6 +25,8 @@ export class App {
    * @private
    */
   private initialiseMiddlewares() {
+    // allow CORS
+    this.app.use(cors());
     // compression parser
     this.app.use(compression());
     // body-parser
