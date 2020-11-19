@@ -3,7 +3,7 @@
  */
 import { Status } from '../../util/status';
 
-export interface ExecuteResponse {
+export interface ExecutionResponse {
   log: string;
   status: Status;
 }

@@ -1,21 +1,26 @@
 import express from 'express';
 import { BaseController } from './base-controller';
-import { ExecutorService } from '../service/contract/executor-service';
-import { ExecutorServiceImpl } from '../service/impl/executor-service-impl';
+import { ProgramExecutor } from '../service/program-executor';
+import { ProgramExecutorCommand } from '../service/executor/program-executor-command';
+import { LanguageMetadataFactory } from '../service/language-metadata-factory';
+import { ExecutionRequest } from '../dto/request/execution-request';
 
 export class ExecutorController extends BaseController {
   // the base path of the controller
   private BASE_PATH = '/executor';
-  // the executor service instance
-  private executorService: ExecutorService;
+
+  private programExecutor: ProgramExecutor
+
+  private metadataFactory: LanguageMetadataFactory
 
   constructor() {
     super();
-    this.executorService = new ExecutorServiceImpl();
+    this.programExecutor = new ProgramExecutor()
+    this.metadataFactory = new LanguageMetadataFactory()
   }
 
   initialiseRoutes(): void {
-    this.router.post(this.BASE_PATH, this.executeHandler);
+    this.router.post(this.BASE_PATH, this.executeHandler)
   }
 
   /**
@@ -25,7 +30,17 @@ export class ExecutorController extends BaseController {
    * @param res - the response payload
    */
   private executeHandler = async (req: express.Request, res: express.Response) => {
+    const executionRequest: ExecutionRequest = req.body as ExecutionRequest;
+
+    this.programExecutor.setCommand(
+      new ProgramExecutorCommand(
+        this.metadataFactory.getLanguageMetadataInstance(executionRequest.type)
+      )
+    );
+
+    const result = await this.programExecutor.run(executionRequest.code)
+
     // execute request code block
-    res.send(await this.executorService.execute(req.body));
+    res.send(result)
   };
 }
