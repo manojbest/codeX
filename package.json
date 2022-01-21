@@ -34,7 +34,7 @@
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",
     "husky": "^4.3.0",
-    "log4js": "^6.3.0",
+    "log4js": "^6.4.0",
     "nodemon": "^2.0.6",
     "prettier": "^2.1.2",
     "prettier-tslint": "^0.4.2",
